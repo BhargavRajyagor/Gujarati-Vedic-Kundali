@@ -1,5 +1,5 @@
 ---
-title: Gujarati Vedic Kundali Streamlit
+title: Vedic Kundali-1.0
 emoji: 🪔
 colorFrom: purple
 colorTo: blue
@@ -9,7 +9,7 @@ python_version: "3.10"
 short_description: Gujarati Vedic Kundali with D1, D9 and Dasha
 ---
 
-# 🪔 Gujarati Vedic Kundali — Streamlit
+# 🪔 Vedic Kundali - 1.0
 
 Streamlit edition of the existing Gujarat Vedic Kundali application.
 
