@@ -21,7 +21,9 @@ import pandas as pd
 import requests
 import swisseph as swe
 from timezonefinder import TimezoneFinder
-import matplotlib
+import matplotlib 
+from matplotlib import patches
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import folium
