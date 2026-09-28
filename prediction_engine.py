@@ -677,13 +677,37 @@ def _dasha_rows_to_datetimes(dasha_df):
 
 
 def _active_dasha(dasha_df, when=None):
+    """Return the dasha period active on the supplied date.
+
+    Dasha Start/End values are stored as date-only strings, while Streamlit
+    passes an aware datetime (for example Asia/Kolkata). Comparing a naive
+    datetime with an aware datetime raises TypeError.  Since the dasha table
+    has day-level precision, compare calendar dates instead of timestamps.
+    This also makes the End date inclusive.
+    """
     when = when or datetime.now()
     rows = _dasha_rows_to_datetimes(dasha_df)
+
+    if not rows:
+        return None
+
+    if isinstance(when, datetime):
+        when_date = when.date()
+    else:
+        try:
+            when_date = when.to_pydatetime().date()
+        except AttributeError:
+            when_date = when
+
     for r in rows:
-        if r["Start"] <= when <= r["End"]:
+        if r["Start"].date() <= when_date <= r["End"].date():
             return r
-    # If current date is beyond generated table, use the last generated period.
-    return rows[-1] if rows else None
+
+    # If the requested date is outside the generated table, use the closest
+    # generated period rather than failing the complete Kundali calculation.
+    if when_date < rows[0]["Start"].date():
+        return rows[0]
+    return rows[-1]
 
 
 def _dasha_area_modifier(md, ad, planet_map, house_lords):
