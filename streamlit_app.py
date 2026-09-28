@@ -35,6 +35,8 @@ from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from matplotlib import font_manager
+from matplotlib import patches
+
 
 # Existing calculation/chart layer extracted from the user's app.py.
 # The generated core intentionally excludes the Gradio UI and duplicated prediction engine.
