@@ -2723,7 +2723,7 @@ from prediction_engine import (
 # STREAMLIT PAGE CONFIG
 # ------------------------------------------------------------------
 st.set_page_config(
-    page_title="ગુજરાતી વૈદિક જન્મ કુંડળી",
+    page_title="વૈદિક જન્મ કુંડળી - 1.0",
     page_icon="🪔",
     layout="wide",
     initial_sidebar_state="expanded",
