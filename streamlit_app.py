@@ -3044,7 +3044,7 @@ for key, default in {
 # ------------------------------------------------------------------
 # UI
 # ------------------------------------------------------------------
-st.markdown('<div class="main-title">🪔 ગુજરાતી વૈદિક જન્મ કુંડળી</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🕉️ વૈદિક જન્મ કુંડળી - 1.0 🕉️</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="sub-title">જન્મસ્થળ પસંદ કરો → જન્મ વિગતો દાખલ કરો → D1, D9, દશા અને નિયમ આધારિત વિશ્લેષણ મેળવો</div>',
     unsafe_allow_html=True,
