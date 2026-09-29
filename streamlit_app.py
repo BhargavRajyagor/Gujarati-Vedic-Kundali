@@ -2003,50 +2003,250 @@ def calculate_vimshottari(
     )
 
 # ================================================================
-# FONT CONFIGURATION — BUNDLE Noto Sans Gujarati WITH THE APP
+# GUJARATI FONT CONFIGURATION
 # ================================================================
-# DejaVu Sans does not contain Gujarati glyphs.  Using it for the
-# Matplotlib Kundali chart produces the square/tofu characters seen
-# in the deployed Streamlit screenshot.  Always use the bundled
-# Noto Sans Gujarati font for Gujarati chart/PDF text.
+# IMPORTANT:
+# Gujarati must use Noto Sans Gujarati consistently in:
+# 1. Streamlit UI
+# 2. Matplotlib Kundali
+# 3. PDF
+#
+# Keep these files inside:
+#
+# fonts/
+# ├── NotoSansGujarati-Regular.ttf
+# └── NotoSansGujarati-Bold.ttf
+#
+# ================================================================
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 FONT_DIR = os.path.join(APP_DIR, "fonts")
 
-GUJARATI_FONT = os.path.join(FONT_DIR, "NotoSansGujarati-Regular.ttf")
-GUJARATI_BOLD_FONT = os.path.join(FONT_DIR, "NotoSansGujarati-Bold.ttf")
+GUJARATI_FONT = os.path.join(
+    FONT_DIR,
+    "NotoSansGujarati-Regular.ttf"
+)
 
-# Fail early with a useful message instead of silently falling back to
-# a font that cannot render Gujarati.
+GUJARATI_BOLD_FONT = os.path.join(
+    FONT_DIR,
+    "NotoSansGujarati-Bold.ttf"
+)
+
+# ------------------------------------------------
+# Verify Gujarati fonts
+# ------------------------------------------------
+
 if not os.path.isfile(GUJARATI_FONT):
     raise FileNotFoundError(
-        f"Noto Sans Gujarati font not found: {GUJARATI_FONT}. "
-        "Make sure fonts/NotoSansGujarati-Regular.ttf is committed."
+        f"""
+Gujarati font not found:
+
+{GUJARATI_FONT}
+
+Please make sure this file exists:
+fonts/NotoSansGujarati-Regular.ttf
+"""
     )
 
 if not os.path.isfile(GUJARATI_BOLD_FONT):
     raise FileNotFoundError(
-        f"Noto Sans Gujarati bold font not found: {GUJARATI_BOLD_FONT}. "
-        "Make sure fonts/NotoSansGujarati-Bold.ttf is committed."
+        f"""
+Gujarati bold font not found:
+
+{GUJARATI_BOLD_FONT}
+
+Please make sure this file exists:
+fonts/NotoSansGujarati-Bold.ttf
+"""
     )
 
-# Register the fonts with Matplotlib so they are available to every
-# generated chart, including D1/D9.
-font_manager.fontManager.addfont(GUJARATI_FONT)
-font_manager.fontManager.addfont(GUJARATI_BOLD_FONT)
+# ------------------------------------------------
+# Register fonts with Matplotlib
+# ------------------------------------------------
 
-matplotlib.rcParams["font.family"] = "DejaVu Sans"
-matplotlib.rcParams["font.sans-serif"] = ["DejaVu Sans"]
-matplotlib.rcParams["axes.unicode_minus"] = False
-
-ENGLISH_FONT = font_manager.findfont(
-    font_manager.FontProperties(family="DejaVu Sans")
+font_manager.fontManager.addfont(
+    GUJARATI_FONT
 )
 
-GUJ_FONT = font_manager.FontProperties(fname=GUJARATI_FONT)
-GUJ_FONT_BOLD = font_manager.FontProperties(fname=GUJARATI_BOLD_FONT)
-ENG_FONT = font_manager.FontProperties(fname=ENGLISH_FONT)
-ENG_FONT_BOLD = font_manager.FontProperties(fname=ENGLISH_FONT)
+font_manager.fontManager.addfont(
+    GUJARATI_BOLD_FONT
+)
+
+# ------------------------------------------------
+# Create explicit FontProperties
+# ------------------------------------------------
+
+GUJ_FONT = font_manager.FontProperties(
+    fname=GUJARATI_FONT
+)
+
+GUJ_FONT_BOLD = font_manager.FontProperties(
+    fname=GUJARATI_BOLD_FONT
+)
+
+# English font
+ENGLISH_FONT = font_manager.findfont(
+    font_manager.FontProperties(
+        family="DejaVu Sans"
+    )
+)
+
+ENG_FONT = font_manager.FontProperties(
+    fname=ENGLISH_FONT
+)
+
+ENG_FONT_BOLD = font_manager.FontProperties(
+    fname=ENGLISH_FONT
+)
+
+# ------------------------------------------------
+# Matplotlib defaults
+# ------------------------------------------------
+
+matplotlib.rcParams["axes.unicode_minus"] = False
+
+# ================================================================
+# STREAMLIT GUJARATI FONT CSS
+# ================================================================
+
+def inject_gujarati_font_css():
+
+    import base64
+
+    with open(
+        GUJARATI_FONT,
+        "rb"
+    ) as f:
+        regular_b64 = base64.b64encode(
+            f.read()
+        ).decode("utf-8")
+
+    with open(
+        GUJARATI_BOLD_FONT,
+        "rb"
+    ) as f:
+        bold_b64 = base64.b64encode(
+            f.read()
+        ).decode("utf-8")
+
+    st.markdown(
+        f"""
+        <style>
+
+        @font-face {{
+            font-family: 'NotoGujaratiApp';
+            src: url(
+                data:font/ttf;base64,{regular_b64}
+            ) format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }}
+
+        @font-face {{
+            font-family: 'NotoGujaratiApp';
+            src: url(
+                data:font/ttf;base64,{bold_b64}
+            ) format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }}
+
+        /* Main Streamlit content */
+
+        html,
+        body,
+        [class*="css"],
+        .stApp,
+        .main,
+        .block-container,
+        .stMarkdown,
+        .stText,
+        .stCaption,
+        .stAlert,
+        .stMetric,
+        .stDataFrame,
+        .stButton,
+        .stSelectbox,
+        .stTextInput,
+        .stNumberInput,
+        .stDateInput,
+        .stTimeInput,
+        label,
+        p,
+        span,
+        div,
+        td,
+        th,
+        textarea,
+        input,
+        button {{
+
+            font-family:
+                'NotoGujaratiApp',
+                'Noto Sans Gujarati',
+                sans-serif !important;
+
+        }}
+
+        /* Markdown */
+
+        .stMarkdown,
+        .stMarkdown p,
+        .stMarkdown li,
+        .stMarkdown h1,
+        .stMarkdown h2,
+        .stMarkdown h3,
+        .stMarkdown h4,
+        .stMarkdown strong {{
+
+            font-family:
+                'NotoGujaratiApp',
+                'Noto Sans Gujarati',
+                sans-serif !important;
+
+        }}
+
+        /* Metric */
+
+        [data-testid="stMetricLabel"],
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricDelta"] {{
+
+            font-family:
+                'NotoGujaratiApp',
+                'Noto Sans Gujarati',
+                sans-serif !important;
+
+        }}
+
+        /* Dataframe */
+
+        [data-testid="stDataFrame"] * {{
+
+            font-family:
+                'NotoGujaratiApp',
+                'Noto Sans Gujarati',
+                sans-serif !important;
+
+        }}
+
+        /* Buttons */
+
+        button,
+        button p,
+        button span {{
+
+            font-family:
+                'NotoGujaratiApp',
+                'Noto Sans Gujarati',
+                sans-serif !important;
+
+        }}
+
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 def north_indian_centers():
 
@@ -2079,141 +2279,85 @@ def north_indian_centers():
     }
 
 def draw_north_indian(
-
     ax,
     rows,
     asc,
     title,
     navamsa=False
-
 ):
 
     # --------------------------------------------------------
     # AXIS
     # --------------------------------------------------------
 
-    ax.set_xlim(
-        0,
-        1
-    )
-
-    ax.set_ylim(
-        0,
-        1
-    )
-
-    ax.set_aspect(
-        "equal"
-    )
-
-    ax.axis(
-        "off"
-    )
-
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_aspect("equal")
+    ax.axis("off")
 
     # --------------------------------------------------------
     # OUTER SQUARE
     # --------------------------------------------------------
 
     ax.add_patch(
-
         patches.Rectangle(
-
             (0, 0),
-
             1,
-
             1,
-
             fill=False,
-
             linewidth=2
-
         )
-
     )
-
 
     # --------------------------------------------------------
     # MAIN DIAGONALS
     # --------------------------------------------------------
 
     ax.plot(
-
         [0, 1],
-
         [0, 1],
-
         linewidth=1.5
-
     )
-
 
     ax.plot(
-
         [0, 1],
-
         [1, 0],
-
         linewidth=1.5
-
     )
-
 
     # --------------------------------------------------------
     # INNER DIAGONALS
     # --------------------------------------------------------
 
     ax.plot(
-
         [0.5, 0],
-
         [0, 0.5],
-
         linewidth=1.2
-
     )
 
-
     ax.plot(
-
         [0.5, 0],
-
         [1, 0.5],
-
         linewidth=1.2
-
     )
 
-
     ax.plot(
-
         [0.5, 1],
-
         [0, 0.5],
-
         linewidth=1.2
-
     )
-
 
     ax.plot(
-
         [0.5, 1],
-
         [1, 0.5],
-
         linewidth=1.2
-
     )
-
 
     centers = north_indian_centers()
 
-
-    # ========================================================
-    # DETERMINE STARTING SIGN
-    # ========================================================
+    # --------------------------------------------------------
+    # STARTING SIGN
+    # --------------------------------------------------------
 
     if navamsa:
 
@@ -2227,34 +2371,23 @@ def draw_north_indian(
             "Rashi_Index"
         ]
 
+    # --------------------------------------------------------
+    # HOUSE CONTENT
+    # --------------------------------------------------------
 
-    # ========================================================
-    # DISPLAY 12 HOUSES
-    # ========================================================
-
-    for house in range(
-        1,
-        13
-    ):
+    for house in range(1, 13):
 
         sign_index = (
-
             lagna_sign
             + house
             - 1
-
         ) % 12
 
-
-        x, y = centers[
-            house
-        ]
-
+        x, y = centers[house]
 
         rashi_internal = RASHIS[
             sign_index
         ][0]
-
 
         rashi_gujarati = (
             RASHI_GUJARATI[
@@ -2262,105 +2395,63 @@ def draw_north_indian(
             ]
         )
 
-
         # ----------------------------------------------------
         # HOUSE NUMBER
         # ----------------------------------------------------
 
         ax.text(
-
             x,
-
-            y + 0.12,
-
+            y + 0.125,
             f"ભાવ {house}",
-
             ha="center",
-
             va="center",
-
-            fontsize=8,
-
+            fontsize=7.5,
             fontproperties=GUJ_FONT_BOLD
-
         )
 
-
         # ----------------------------------------------------
-        # RASHI NAME
+        # RASHI
         # ----------------------------------------------------
 
         ax.text(
-
             x,
-
-            y + 0.035,
-
+            y + 0.055,
             rashi_gujarati,
-
             ha="center",
-
             va="center",
-
-            fontsize=10,
-
+            fontsize=9,
             fontproperties=GUJ_FONT_BOLD
-
         )
 
-
-    # ========================================================
-    # GROUP PLANETS BY HOUSE
-    # ========================================================
+    # --------------------------------------------------------
+    # GROUP PLANETS
+    # --------------------------------------------------------
 
     grouped = {
-
         h: []
-
-        for h in range(
-            1,
-            13
-        )
-
+        for h in range(1, 13)
     }
-
 
     for row in rows:
 
         if navamsa:
 
             house = (
-
                 (
-                    row[
-                        "Navamsa_Index"
-                    ]
-
-                    -
-
-                    lagna_sign
-
+                    row["Navamsa_Index"]
+                    - lagna_sign
                 ) % 12
-
             ) + 1
 
         else:
 
-            house = row[
-                "House"
-            ]
-
+            house = row["House"]
 
         planet_gujarati = (
             PLANET_GUJARATI[
                 row["Planet"]
             ]
         )
-
-
-        # ----------------------------------------------------
-        # RETROGRADE
-        # ----------------------------------------------------
 
         if row.get(
             "Retrograde",
@@ -2369,268 +2460,167 @@ def draw_north_indian(
 
             planet_gujarati += " (વક્રી)"
 
-
-        grouped[
-            house
-        ].append(
+        grouped[house].append(
             planet_gujarati
         )
 
-
-    # ========================================================
+    # --------------------------------------------------------
     # DISPLAY PLANETS
-    # ========================================================
+    # --------------------------------------------------------
 
     for house, planets in grouped.items():
 
         if not planets:
-
             continue
 
+        x, y = centers[house]
 
-        x, y = centers[
-            house
-        ]
-
-
+        # Keep planet text compact.
         planet_text = "\n".join(
             planets
         )
 
-
         ax.text(
-
             x,
-
-            y - 0.105,
-
+            y - 0.045,
             planet_text,
-
             ha="center",
-
             va="center",
-
-            fontsize=8.5,
-
-            linespacing=0.95,
-
-            fontproperties=GUJ_FONT_BOLD
-
+            fontsize=7.4,
+            linespacing=0.9,
+            fontproperties=GUJ_FONT_BOLD,
+            wrap=True,
+            clip_on=True
         )
 
-
-    # ========================================================
-    # CHART TITLE
-    # ========================================================
+    # --------------------------------------------------------
+    # TITLE
+    # --------------------------------------------------------
 
     ax.set_title(
-
         title,
-
-        fontsize=14,
-
-        fontweight="bold",
-
-        pad=12,
-
+        fontsize=13,
+        pad=10,
         fontproperties=GUJ_FONT_BOLD
-
     )
 
 def create_kundali_png(
-
     rows,
     asc,
     name,
     birth_text
-
 ):
 
     path = os.path.join(
-
         tempfile.gettempdir(),
-
         "gujarati_vedic_kundali.png"
-
     )
-
 
     # --------------------------------------------------------
     # CREATE FIGURE
     # --------------------------------------------------------
 
     fig, axes = plt.subplots(
-
         1,
-
         2,
-
         figsize=(15, 8)
-
     )
 
-
-    # ========================================================
-    # D1 — જન્મ રાશિ
-    # ========================================================
+    # --------------------------------------------------------
+    # D1
+    # --------------------------------------------------------
 
     draw_north_indian(
-
         axes[0],
-
         rows,
-
         asc,
-
         "જન્મ રાશિ કુંડળી",
-
         navamsa=False
-
     )
 
-
-    # ========================================================
-    # D9 — નવાંશ
-    # ========================================================
+    # --------------------------------------------------------
+    # D9
+    # --------------------------------------------------------
 
     draw_north_indian(
-
         axes[1],
-
         rows,
-
         asc,
-
         "નવાંશ કુંડળી",
-
         navamsa=True
-
     )
 
-
-    # ========================================================
-    # TOP GUJARATI TITLE
-    # ========================================================
+    # --------------------------------------------------------
+    # MAIN TITLE
+    # --------------------------------------------------------
 
     fig.text(
-
         0.50,
-
-        0.965,
-
+        0.975,
         "વૈદિક જન્મ કુંડળી",
-
         ha="center",
-
         va="center",
-
         fontsize=18,
-
         fontproperties=GUJ_FONT_BOLD
-
     )
 
-
-    # ========================================================
+    # --------------------------------------------------------
     # NAME
-    # ========================================================
-    #
-    # IMPORTANT:
-    # Name is deliberately rendered using English font.
-    #
-    # If the entered name is Gujarati, we will later make
-    # the name font selectable separately.
-    #
-
+    # --------------------------------------------------------
 
     if name:
 
         fig.text(
-
             0.50,
-
-            0.935,
-
+            0.942,
             str(name),
-
             ha="center",
-
             va="center",
-
             fontsize=13,
-
-            fontproperties=ENG_FONT_BOLD
-
+            fontproperties=GUJ_FONT_BOLD
         )
 
-
-    # ========================================================
+    # --------------------------------------------------------
     # DATE / TIME
-    # ========================================================
+    # --------------------------------------------------------
 
     if birth_text:
 
         fig.text(
-
             0.50,
-
-            0.905,
-
+            0.915,
             str(birth_text),
-
             ha="center",
-
             va="center",
-
             fontsize=10,
-
             fontproperties=ENG_FONT
-
         )
 
-
-    # ========================================================
+    # --------------------------------------------------------
     # LAYOUT
-    # ========================================================
+    # --------------------------------------------------------
 
     plt.tight_layout(
-
         rect=[
-
             0,
-
             0,
-
             1,
-
             0.88
-
         ]
-
     )
 
-
-    # ========================================================
-    # SAVE IMAGE
-    # ========================================================
+    # --------------------------------------------------------
+    # SAVE
+    # --------------------------------------------------------
 
     fig.savefig(
-
         path,
-
-        dpi=200,
-
+        dpi=220,
         bbox_inches="tight",
-
         facecolor="white"
-
     )
 
-
-    plt.close(
-        fig
-    )
-
+    plt.close(fig)
 
     return path
 
@@ -2728,6 +2718,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Apply Gujarati font to the complete Streamlit interface
+inject_gujarati_font_css()
 
 st.markdown(
     """
@@ -3149,10 +3142,38 @@ if result:
     st.divider()
     st.subheader("📋 જન્મ સારાંશ")
     c1,c2,c3,c4 = st.columns(4)
-    c1.metric("જન્મ રાશિ", result["planet_df"].loc[result["planet_df"]["ગ્રહ"] == "ચંદ્ર", "રાશિ"].iloc[0])
-    c2.metric("લગ્ન", RASHI_GUJARATI[result["asc"]["Rashi"]])
-    c3.metric("નક્ષત્ર", result["moon_nak"])
-    c4.metric("પ્રારંભિક મહાદશા", DASHA_GUJARATI.get(result["first_lord"], result["first_lord"]))
+    c1, c2, c3, c4 = st.columns(4)
+
+    c1.metric(
+        "જન્મ રાશિ",
+        result["planet_df"].loc[
+            result["planet_df"]["ગ્રહ"] == "ચંદ્ર",
+            "રાશિ"
+        ].iloc[0]
+    )
+
+    c2.metric(
+        "લગ્ન",
+        RASHI_GUJARATI[
+            result["asc"]["Rashi"]
+        ]
+    )
+
+    c3.metric(
+        "નક્ષત્ર",
+        NAKSHATRA_GUJARATI.get(
+            result["moon_nak"],
+            result["moon_nak"]
+        )
+    )
+
+    c4.metric(
+        "પ્રારંભિક મહાદશા",
+        DASHA_GUJARATI.get(
+            result["first_lord"],
+            result["first_lord"]
+        )
+)
 
     st.subheader("🪔 D1 જન્મ રાશિ અને D9 નવાંશ")
     st.image(result["chart_path"], use_container_width=True)
@@ -3174,7 +3195,33 @@ if result:
         m = pred["manglik"]
         st.metric("Manglik", "હા" if m["present"] else "ના")
 
-    st.markdown(result["prediction_report"])
+    st.markdown(
+    """
+    <style>
+    .gujarati-report {
+        font-family:
+            'NotoGujaratiApp',
+            'Noto Sans Gujarati',
+            sans-serif !important;
+
+        font-size: 17px;
+        line-height: 1.8;
+    }
+
+    .gujarati-report * {
+        font-family:
+            'NotoGujaratiApp',
+            'Noto Sans Gujarati',
+            sans-serif !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    result["prediction_report"]
+)
 
     st.subheader("📅 11 વર્ષનો નિયમ આધારિત ટ્રેન્ડ")
     annual_rows = []
